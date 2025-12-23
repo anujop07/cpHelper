@@ -1,0 +1,12 @@
+import express from 'express';
+import profileRoutes from './routes/profile.route.js';
+
+const app = express();
+
+// ...existing middleware and route registrations...
+
+app.use('/api/profile', profileRoutes);
+
+// ...existing error handling and server start logic...
+
+export default app;

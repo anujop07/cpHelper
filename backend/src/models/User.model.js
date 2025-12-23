@@ -6,43 +6,44 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      trim: true
+      trim: true,
     },
 
     email: {
       type: String,
       required: true,
       unique: true,
-      lowercase: true
+      lowercase: true,
     },
 
     password: {
       type: String,
-      required: true
+      required: true,
     },
 
     // later: CP platform handles
     codeforcesHandle: {
       type: String,
-      default: ""
+      default: "",
     },
     leetcodeHandle: {
       type: String,
-      default: ""
+      default: "",
     },
     codechefHandle: {
       type: String,
-      default: ""
+      default: "",
     },
     gfgHandle: {
       type: String,
-      default: ""
-    }
+      default: "",
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
+//here is the main for(int i=0;i<n;i++)
 
 const User = mongoose.model("User", userSchema);
 
