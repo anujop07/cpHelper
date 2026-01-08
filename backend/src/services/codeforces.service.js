@@ -10,10 +10,11 @@ export const getCodeforcesInfo = async (handle) => {
   if (!handle) {
     throw new Error("Codeforces handle is required");
   }
+console.log(handle);
 
   try {
     const url = `${CODEFORCES_BASE_URL}/user.info?handles=${handle}`;
-
+    
     const response = await axios.get(url);
 
     if (response.data.status !== "OK") {

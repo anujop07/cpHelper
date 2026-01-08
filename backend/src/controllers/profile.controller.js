@@ -1,12 +1,16 @@
 export const updateHandles = async (req, res) => {
   try {
     const {
+      codeforcesHandle,
       leetcodeHandle,
       codechefHandle,
       gfgHandle
     } = req.body;
 
-    const user = req.user; // comes from JWT middleware
+    const user = req.user;
+
+    if (codeforcesHandle !== undefined)
+      user.codeforcesHandle = codeforcesHandle;
 
     if (leetcodeHandle !== undefined)
       user.leetcodeHandle = leetcodeHandle;
@@ -23,6 +27,7 @@ export const updateHandles = async (req, res) => {
       success: true,
       message: "CP handles updated successfully",
       handles: {
+        codeforcesHandle: user.codeforcesHandle,
         leetcodeHandle: user.leetcodeHandle,
         codechefHandle: user.codechefHandle,
         gfgHandle: user.gfgHandle

@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/User.model.js";
 import { generateToken } from "../utils/jwt.js";
 export const registerUser = async (userData) => {
+  // console.log("Registering insideee service  with data:", userData);
   const { username, email, password } = userData;
     
   if(!username || !email || !password) {
@@ -9,7 +10,9 @@ export const registerUser = async (userData) => {
   }     
 
   const existingUser = await User.findOne({ $or: [ { email }, { username } ] });
+  console.log("Existing user check:", existingUser);
     if (existingUser) {
+      // console.log("User already exists with email or username:", email, username);
         throw new Error("User with given email or username already exists");
     }
 
