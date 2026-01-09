@@ -25,15 +25,15 @@ function Login() {
     // Call your backend API
     API.post("/auth/login", { email, password })
       .then(function(response) {
-        // Success!
         console.log("Login successful:", response.data);
         setLoading(false);
         
-        // Go to profile page
+        // ✅ NEW: Save the token to localStorage
+        localStorage.setItem("token", response.data.token);
+        
         navigate("/profile");
       })
       .catch(function(err) {
-        // Error!
         console.log("Login failed:", err);
         setLoading(false);
         setError(err.response?.data?.message || "Login failed");
