@@ -2,406 +2,176 @@ import { useState } from "react";
 import API from "../src/Api";
 
 function DiffTester() {
-  // ===== CODE INPUTS =====
-  const [oracleCode, setOracleCode] = useState(`#include <iostream>
-using namespace std;
-
-int main() {
-    int n;
-    cin >> n;
-    int arr[n];
-    for(int i = 0; i < n; i++) cin >> arr[i];
-    
-    // Correct: use long long
-    long long sum = 0;
-    for(int i = 0; i < n; i++) sum += arr[i];
-    cout << sum << endl;
-    
-    return 0;
-}`);
-
-  const [candidateCode, setCandidateCode] = useState(`#include <iostream>
-using namespace std;
-
-int main() {
-    int n;
-    cin >> n;
-    int arr[n];
-    for(int i = 0; i < n; i++) cin >> arr[i];
-    
-    // Bug: integer overflow for large values
-    int sum = 0;
-    for(int i = 0; i < n; i++) sum += arr[i];
-    cout << sum << endl;
-    
-    return 0;
-}`);
-
-  // ===== INPUT CONSTRAINTS =====
-  const [arrayConstraints, setArrayConstraints] = useState({
-    nMin: 1,
-    nMax: 100,
-    vMin: -1000,
-    vMax: 1000,
-  });
-
-  // ===== TESTING BUDGET =====
-  const [testingBudget, setTestingBudget] = useState({
-    maxTestcases: 500,
-    maxTimeMs: 30000,
-  });
-
-  // ===== RESULTS =====
-  const [result, setResult] = useState(null);
-  const [testing, setTesting] = useState(false);
+  const [correctCode, setCorrectCode] = useState("");
+  const [testCode, setTestCode] = useState("");
+  const [generatorCode, setGeneratorCode] = useState("");
+  const [testCases, setTestCases] = useState(10);
+  const [language, setLanguage] = useState("cpp");
+  const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // ===== HANDLERS =====
+  const languages = [
+    { value: "cpp", label: "C++", icon: "🔷" },
+    { value: "python", label: "Python", icon: "🐍" },
+  ];
 
-  function handleArrayConstraintChange(field, value) {
-    setArrayConstraints({
-      ...arrayConstraints,
-      [field]: Number(value),
-    });
-  }
-
-  function handleBudgetChange(field, value) {
-    setTestingBudget({
-      ...testingBudget,
-      [field]: Number(value),
-    });
-  }
-
-  function buildRequestBody() {
-    return {
-      oracleCode,
-      candidateCode,
-      nMin: arrayConstraints.nMin,
-      nMax: arrayConstraints.nMax,
-      vMin: arrayConstraints.vMin,
-      vMax: arrayConstraints.vMax,
-      maxTestcases: testingBudget.maxTestcases,
-      maxTimeMs: testingBudget.maxTimeMs,
-    };
-  }
-
-  function handleRunTest() {
-    setTesting(true);
-    setResult(null);
+  function handleTest() {
+    if (!correctCode.trim() || !testCode.trim() || !generatorCode.trim()) {
+      setError("Please fill all code fields");
+      return;
+    }
     setError("");
+    setResults(null);
+    setLoading(true);
 
-    const requestBody = buildRequestBody();
-    console.log("Sending request:", requestBody);
-
-    API.post("/differential/test", requestBody)
-      .then(function (response) {
-        console.log("Test result:", response.data);
-        setTesting(false);
-        setResult(response.data);
+    API.post("/diff/test", { correctCode, testCode, generatorCode, testCases, language })
+      .then(function(response) {
+        setLoading(false);
+        setResults(response.data);
       })
-      .catch(function (err) {
-        console.log("Test failed:", err);
-        setTesting(false);
-        setError(err.response?.data?.error || err.message || "Test failed");
+      .catch(function(err) {
+        setLoading(false);
+        setError(err.response?.data?.message || "Test failed");
       });
   }
 
-  // ===== RENDER =====
+  function handleClear() {
+    setCorrectCode("");
+    setTestCode("");
+    setGeneratorCode("");
+    setResults(null);
+    setError("");
+  }
+
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1>Code Debugger (Differential Testing)</h1>
-      <p>Find bugs by comparing your code against a correct solution.</p>
-
-      {/* ===== CODE EDITORS ===== */}
-      <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-        <div style={{ flex: 1 }}>
-          <h3>Oracle (Correct Solution)</h3>
-          <textarea
-            value={oracleCode}
-            onChange={(e) => setOracleCode(e.target.value)}
-            rows={15}
-            style={{
-              width: "100%",
-              fontFamily: "monospace",
-              fontSize: "14px",
-              padding: "10px",
-              backgroundColor: "#1e1e1e",
-              color: "#00ff00",
-              border: "2px solid #4CAF50",
-              borderRadius: "5px",
-            }}
-            disabled={testing}
-          />
-        </div>
-
-        <div style={{ flex: 1 }}>
-          <h3>Candidate (Your Solution)</h3>
-          <textarea
-            value={candidateCode}
-            onChange={(e) => setCandidateCode(e.target.value)}
-            rows={15}
-            style={{
-              width: "100%",
-              fontFamily: "monospace",
-              fontSize: "14px",
-              padding: "10px",
-              backgroundColor: "#1e1e1e",
-              color: "#ff6b6b",
-              border: "2px solid #f44336",
-              borderRadius: "5px",
-            }}
-            disabled={testing}
-          />
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-surface-dark via-surface-darker to-slate-900 py-8 px-4">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-accent-purple/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
       </div>
 
-      {/* ===== ARRAY CONSTRAINTS ===== */}
-      <div style={{ 
-        backgroundColor: "#f5f5f5", 
-        padding: "15px", 
-        borderRadius: "8px",
-        marginBottom: "20px" 
-      }}>
-        <h3 style={{ marginTop: 0 }}>Array Input Constraints</h3>
-        <p style={{ color: "#666", fontSize: "14px" }}>
-          Input format: n (array length), followed by n space-separated integers
-        </p>
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <div className="text-center mb-8 animate-fade-in-up">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            🔥 <span className="bg-gradient-to-r from-accent-purple to-primary-500 bg-clip-text text-transparent">Differential Tester</span>
+          </h1>
+          <p className="text-gray-400">Find bugs by comparing solutions with random test cases</p>
+        </div>
 
-        <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-          <div>
-            <label>Min Length (nMin): </label>
-            <input
-              type="number"
-              value={arrayConstraints.nMin}
-              onChange={(e) => handleArrayConstraintChange("nMin", e.target.value)}
-              min={0}
-              disabled={testing}
-              style={{ width: "80px", padding: "5px" }}
-            />
+        {/* Controls */}
+        <div className="flex flex-wrap justify-center items-center gap-4 mb-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+          <div className="inline-flex bg-white/5 backdrop-blur-md rounded-xl p-1 border border-white/10">
+            {languages.map((lang) => (
+              <button key={lang.value} onClick={() => setLanguage(lang.value)}
+                className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
+                  language === lang.value 
+                    ? 'bg-gradient-to-r from-accent-purple to-primary-500 text-white shadow-lg' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}>
+                {lang.icon} {lang.label}
+              </button>
+            ))}
           </div>
-
-          <div>
-            <label>Max Length (nMax): </label>
-            <input
-              type="number"
-              value={arrayConstraints.nMax}
-              onChange={(e) => handleArrayConstraintChange("nMax", e.target.value)}
-              min={1}
-              disabled={testing}
-              style={{ width: "80px", padding: "5px" }}
-            />
-          </div>
-
-          <div>
-            <label>Min Value (vMin): </label>
-            <input
-              type="number"
-              value={arrayConstraints.vMin}
-              onChange={(e) => handleArrayConstraintChange("vMin", e.target.value)}
-              disabled={testing}
-              style={{ width: "100px", padding: "5px" }}
-            />
-          </div>
-
-          <div>
-            <label>Max Value (vMax): </label>
-            <input
-              type="number"
-              value={arrayConstraints.vMax}
-              onChange={(e) => handleArrayConstraintChange("vMax", e.target.value)}
-              disabled={testing}
-              style={{ width: "100px", padding: "5px" }}
-            />
+          
+          <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md rounded-xl px-4 py-2 border border-white/10">
+            <span className="text-gray-300 text-sm">Test Cases:</span>
+            <input type="number" value={testCases} onChange={(e) => setTestCases(Math.max(1, parseInt(e.target.value) || 1))} min="1" max="100"
+              className="w-20 px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-white text-center
+                       focus:outline-none focus:border-primary-500 transition-all" />
           </div>
         </div>
-      </div>
 
-      {/* ===== TESTING BUDGET ===== */}
-      <div style={{ 
-        backgroundColor: "#e3f2fd", 
-        padding: "15px", 
-        borderRadius: "8px",
-        marginBottom: "20px" 
-      }}>
-        <h3 style={{ marginTop: 0 }}>Testing Budget</h3>
-
-        <div style={{ display: "flex", gap: "20px" }}>
-          <div>
-            <label>Max Testcases: </label>
-            <input
-              type="number"
-              value={testingBudget.maxTestcases}
-              onChange={(e) => handleBudgetChange("maxTestcases", e.target.value)}
-              min={1}
-              max={10000}
-              disabled={testing}
-              style={{ width: "100px", padding: "5px" }}
-            />
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl animate-fade-in">
+            <p className="text-red-400 text-sm flex items-center gap-2"><span>❌</span> {error}</p>
           </div>
+        )}
 
-          <div>
-            <label>Max Time (ms): </label>
-            <input
-              type="number"
-              value={testingBudget.maxTimeMs}
-              onChange={(e) => handleBudgetChange("maxTimeMs", e.target.value)}
-              min={1000}
-              max={120000}
-              step={1000}
-              disabled={testing}
-              style={{ width: "100px", padding: "5px" }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ===== RUN BUTTON ===== */}
-      <div style={{ marginBottom: "20px" }}>
-        <button
-          onClick={handleRunTest}
-          disabled={testing}
-          style={{
-            padding: "15px 40px",
-            fontSize: "18px",
-            backgroundColor: testing ? "#999" : "#4CAF50",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: testing ? "not-allowed" : "pointer",
-          }}
-        >
-          {testing ? "⏳ Testing..." : "🐛 Find Bug"}
-        </button>
-      </div>
-
-      {/* ===== ERROR DISPLAY ===== */}
-      {error && (
-        <div style={{
-          backgroundColor: "#ffebee",
-          border: "2px solid #f44336",
-          borderRadius: "8px",
-          padding: "15px",
-          marginBottom: "20px",
-        }}>
-          <h3 style={{ color: "#d32f2f", marginTop: 0 }}>❌ Error</h3>
-          <p style={{ color: "#d32f2f", margin: 0 }}>{error}</p>
-        </div>
-      )}
-
-      {/* ===== RESULTS DISPLAY ===== */}
-      {result && (
-        <div style={{
-          backgroundColor: result.status === "FAILING_TESTCASE_FOUND" ? "#ffebee" : "#e8f5e9",
-          border: result.status === "FAILING_TESTCASE_FOUND" ? "2px solid #f44336" : "2px solid #4CAF50",
-          borderRadius: "8px",
-          padding: "20px",
-        }}>
-          <h2 style={{ marginTop: 0 }}>
-            {result.status === "FAILING_TESTCASE_FOUND" 
-              ? "🐛 Bug Found!" 
-              : "✅ All Tests Passed!"}
-          </h2>
-
-          {/* Message */}
-          <p style={{ fontSize: "16px" }}>{result.message}</p>
-
-          {/* Statistics */}
-          {result.statistics && (
-            <div style={{
-              backgroundColor: "white",
-              padding: "15px",
-              borderRadius: "5px",
-              marginBottom: "15px",
-            }}>
-              <h4 style={{ marginTop: 0 }}>📊 Statistics</h4>
-              <p><strong>Total Tested:</strong> {result.statistics.totalTested}</p>
-              <p><strong>Total Failing:</strong> {result.statistics.totalFailing}</p>
-              <p><strong>Time Taken:</strong> {result.statistics.totalTimeMs}ms</p>
-              <p><strong>Speed:</strong> {result.statistics.testcasesPerSecond} tests/sec</p>
-            </div>
-          )}
-
-          {/* Failing Testcase */}
-          {result.smallestFailingTestcase && (
-            <div style={{
-              backgroundColor: "white",
-              padding: "15px",
-              borderRadius: "5px",
-            }}>
-              <h4 style={{ marginTop: 0 }}>🔍 Smallest Failing Testcase</h4>
-
-              <p><strong>Array Length (n):</strong> {result.smallestFailingTestcase.n}</p>
-
-              <div style={{ marginBottom: "15px" }}>
-                <strong>Input:</strong>
-                <pre style={{
-                  backgroundColor: "#263238",
-                  color: "#ffffff",
-                  padding: "15px",
-                  borderRadius: "5px",
-                  overflow: "auto",
-                  fontFamily: "monospace",
-                }}>
-                  {result.smallestFailingTestcase.input || "N/A"}
-                </pre>
-              </div>
-
-              <div style={{ display: "flex", gap: "20px" }}>
-                <div style={{ flex: 1 }}>
-                  <strong>Oracle Output (Expected):</strong>
-                  <pre style={{
-                    backgroundColor: "#e8f5e9",
-                    color: "#2e7d32",
-                    padding: "15px",
-                    borderRadius: "5px",
-                    border: "2px solid #4CAF50",
-                    fontFamily: "monospace",
-                  }}>
-                    {result.smallestFailingTestcase.oracleOutput || "N/A"}
-                  </pre>
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <strong>Candidate Output (Actual):</strong>
-                  <pre style={{
-                    backgroundColor: "#ffebee",
-                    color: "#c62828",
-                    padding: "15px",
-                    borderRadius: "5px",
-                    border: "2px solid #f44336",
-                    fontFamily: "monospace",
-                  }}>
-                    {result.smallestFailingTestcase.candidateOutput || "N/A"}
-                  </pre>
-                </div>
-              </div>
-
-              <p style={{ marginTop: "15px" }}>
-                <strong>Failure Reason:</strong>{" "}
-                <span style={{ color: "#d32f2f" }}>
-                  {result.smallestFailingTestcase.failureReason || "Output mismatch"}
+        {/* Code Editors */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {[
+            { title: "Correct Solution", value: correctCode, setter: setCorrectCode, color: "green", icon: "✅", delay: '200ms' },
+            { title: "Test Solution", value: testCode, setter: setTestCode, color: "yellow", icon: "🧪", delay: '300ms' },
+            { title: "Input Generator", value: generatorCode, setter: setGeneratorCode, color: "blue", icon: "🎲", delay: '400ms' },
+          ].map((editor) => (
+            <div key={editor.title} className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden animate-fade-in-up" style={{ animationDelay: editor.delay }}>
+              <div className={`px-4 py-3 bg-${editor.color}-500/10 border-b border-white/10`}>
+                <span className="text-white font-medium flex items-center gap-2">
+                  {editor.icon} {editor.title}
                 </span>
-              </p>
+              </div>
+              <textarea value={editor.value} onChange={(e) => editor.setter(e.target.value)} disabled={loading}
+                placeholder={`// ${editor.title} code...`}
+                className="w-full h-64 p-4 bg-transparent text-white font-mono text-sm resize-none outline-none
+                         placeholder-gray-500 disabled:opacity-50" />
             </div>
-          )}
+          ))}
         </div>
-      )}
 
-      {/* ===== DEBUG: Show raw response ===== */}
-      {result && (
-        <details style={{ marginTop: "20px" }}>
-          <summary style={{ cursor: "pointer" }}>🔧 Debug: Raw Response</summary>
-          <pre style={{
-            backgroundColor: "#f5f5f5",
-            padding: "15px",
-            borderRadius: "5px",
-            overflow: "auto",
-            fontSize: "12px",
-          }}>
-            {JSON.stringify(result, null, 2)}
-          </pre>
-        </details>
-      )}
+        {/* Action Buttons */}
+        <div className="flex justify-center gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
+          <button onClick={handleTest} disabled={loading}
+            className="group relative px-8 py-3 bg-gradient-to-r from-accent-purple to-primary-500 
+                     rounded-xl text-white font-semibold text-lg disabled:opacity-50
+                     transform hover:scale-105 transition-all duration-300 overflow-hidden
+                     shadow-[0_0_20px_rgba(167,139,250,0.3)]">
+            <span className="relative z-10 flex items-center gap-2">
+              {loading ? <><svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> Testing...</> : <>🚀 Run Tests</>}
+            </span>
+            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-12"></div>
+          </button>
+          
+          <button onClick={handleClear} disabled={loading}
+            className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20
+                     rounded-xl text-gray-300 hover:text-white font-semibold text-lg
+                     disabled:opacity-50 transform hover:scale-105 transition-all duration-300">
+            🗑️ Clear All
+          </button>
+        </div>
+
+        {/* Results */}
+        {results && (
+          <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 animate-scale-in">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              📊 Results
+              <span className={`ml-auto px-3 py-1 rounded-full text-sm ${
+                results.allPassed ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+              }`}>
+                {results.allPassed ? '✅ All Passed' : `❌ ${results.failedCount || 0} Failed`}
+              </span>
+            </h2>
+
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {results.results?.map((result, index) => (
+                <div key={index} className={`p-4 rounded-xl border ${result.passed ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'} animate-fade-in`} style={{ animationDelay: `${index * 50}ms` }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-white font-medium">Test Case #{index + 1}</span>
+                    <span className={result.passed ? 'text-green-400' : 'text-red-400'}>{result.passed ? '✅ Passed' : '❌ Failed'}</span>
+                  </div>
+                  
+                  {!result.passed && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                      <div>
+                        <p className="text-gray-400 text-xs mb-1">Input</p>
+                        <pre className="p-2 bg-white/5 rounded-lg text-blue-400 text-xs font-mono overflow-x-auto">{result.input}</pre>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-xs mb-1">Expected</p>
+                        <pre className="p-2 bg-white/5 rounded-lg text-green-400 text-xs font-mono overflow-x-auto">{result.expected}</pre>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-xs mb-1">Got</p>
+                        <pre className="p-2 bg-white/5 rounded-lg text-red-400 text-xs font-mono overflow-x-auto">{result.actual}</pre>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

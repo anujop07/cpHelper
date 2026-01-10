@@ -1,123 +1,82 @@
-import { useNavigate, useLocation } from "react-router-dom";
-
 function ComingSoon() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // Custom messages based on route
-  const pageInfo = {
-    "/profile": {
-      title: "Profile",
-      description: "View your CP stats and manage your handles.",
-      icon: "👤",
-    },
-    "/coderunner": {
-      title: "Code Runner",
-      description: "Run C++ code in a secure sandbox.",
-      icon: "▶️",
-    },
-    "/diff": {
-      title: "Differential Testing",
-      description: "Find bugs by comparing two solutions.",
-      icon: "🐛",
-    },
-  };
-
-  const info = pageInfo[location.pathname] || {
-    title: "Feature",
-    description: "Something awesome is coming!",
-    icon: "🚀",
-  };
-
-  // ✅ FIXED: Proper full-screen centering for laptop
   return (
-    <div style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: "#1a1a2e",
-      color: "white",
-      fontFamily: "Arial, sans-serif",
-      textAlign: "center",
-      padding: "20px",
-      boxSizing: "border-box",
-    }}>
-      {/* Icon */}
-      <div style={{ fontSize: "80px", marginBottom: "20px" }}>
-        {info.icon}
+    <div className="min-h-screen bg-gradient-to-br from-surface-dark via-surface-darker to-slate-900 flex items-center justify-center p-4 overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-primary-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-accent-cyan/20 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-primary-500/10 to-accent-purple/10 rounded-full blur-3xl animate-spin-slow"></div>
+        
+        {/* Floating particles */}
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary-500 rounded-full animate-float opacity-50"></div>
+        <div className="absolute top-3/4 right-1/4 w-3 h-3 bg-accent-cyan rounded-full animate-float opacity-40" style={{ animationDelay: '0.5s' }}></div>
+        <div className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-accent-purple rounded-full animate-float opacity-60" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/3 right-1/3 w-2 h-2 bg-primary-400 rounded-full animate-float opacity-50" style={{ animationDelay: '1.5s' }}></div>
       </div>
 
-      {/* Title */}
-      <h1 style={{ 
-        fontSize: "48px", 
-        marginBottom: "10px",
-        background: "linear-gradient(90deg, #00d4ff, #7b2cbf)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-      }}>
-        {info.title}
-      </h1>
+      <div className="relative z-10 text-center max-w-2xl mx-auto animate-scale-in">
+        <div className="relative bg-white/5 backdrop-blur-xl rounded-3xl p-8 md:p-12 border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.3)]">
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 via-accent-purple to-accent-cyan rounded-3xl blur opacity-20 animate-pulse-slow"></div>
+          
+          <div className="relative">
+            {/* Animated Icon */}
+            <div className="mb-8">
+              <div className="inline-block text-7xl md:text-8xl animate-bounce-slow">🚧</div>
+            </div>
 
-      {/* Coming Soon Badge */}
-      <h2 style={{ 
-        color: "#ff6b6b", 
-        marginBottom: "20px",
-        fontSize: "24px",
-      }}>
-        Coming Soon
-      </h2>
+            {/* Title */}
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              <span className="bg-gradient-to-r from-primary-500 via-accent-purple to-accent-cyan bg-clip-text text-transparent animate-gradient-shift bg-[length:200%_auto]">
+                Coming Soon
+              </span>
+            </h1>
 
-      {/* Description */}
-      <p style={{ 
-        fontSize: "16px", 
-        color: "#888",
-        maxWidth: "400px",
-        lineHeight: "1.6",
-        margin: "0 auto",
-      }}>
-        {info.description}
-      </p>
+            {/* Description */}
+            <p className="text-xl text-gray-300 mb-8">
+              We're cooking something amazing! 🔥
+            </p>
 
-      {/* Expected Launch Box */}
-      <div style={{
-        marginTop: "30px",
-        padding: "15px 30px",
-        backgroundColor: "#2d2d44",
-        borderRadius: "10px",
-      }}>
-        <p style={{ margin: 0, color: "#888" }}>Expected Launch</p>
-        <p style={{ 
-          margin: "5px 0 0 0", 
-          fontSize: "24px", 
-          color: "#00d4ff",
-          fontWeight: "bold",
-        }}>
-          February 2026
-        </p>
+            <p className="text-gray-400 mb-8 leading-relaxed">
+              This feature is currently under development. Our team is working hard to bring you 
+              an incredible experience. Stay tuned for updates!
+            </p>
+
+            {/* Progress indicator */}
+            <div className="mb-8">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-gray-400 text-sm">Development Progress</span>
+              </div>
+              <div className="w-full max-w-xs mx-auto h-2 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary-500 to-accent-cyan rounded-full animate-pulse-slow" style={{ width: '65%' }}></div>
+              </div>
+            </div>
+
+            {/* Features coming */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              {[
+                { icon: '🏆', text: 'Contest Tracking' },
+                { icon: '📅', text: 'Calendar View' },
+                { icon: '🔔', text: 'Reminders' },
+              ].map((feature, index) => (
+                <div key={feature.text} className="bg-white/5 rounded-xl p-4 border border-white/10 animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
+                  <div className="text-2xl mb-2">{feature.icon}</div>
+                  <p className="text-gray-300 text-sm">{feature.text}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Back button */}
+            <a href="/"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 
+                       rounded-xl text-white font-semibold
+                       hover:from-primary-400 hover:to-primary-500
+                       transform hover:scale-105 transition-all duration-300
+                       shadow-[0_0_20px_rgba(102,126,234,0.3)]">
+              <span>←</span> Back to Home
+            </a>
+          </div>
+        </div>
       </div>
-
-      {/* Back Button */}
-      <button
-        onClick={() => navigate("/login")}
-        style={{
-          marginTop: "40px",
-          padding: "12px 30px",
-          fontSize: "16px",
-          backgroundColor: "transparent",
-          color: "#00d4ff",
-          border: "2px solid #00d4ff",
-          borderRadius: "25px",
-          cursor: "pointer",
-        }}
-      >
-        ← Back to Login
-      </button>
     </div>
   );
 }
