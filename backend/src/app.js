@@ -6,28 +6,50 @@ import profileRoutes from './routes/profile.route.js';
 import runRoutes from "./routes/run.routes.js";
 import differentialTestRoutes from "./routes/differentialTest.routes.js";
 
+const app = express();
 
+// CORS setup for production
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
-const app= express();
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      // For now, allow all origins (tighten later)
+      callback(null, true);
+    }
+  },
   credentials: true
 }));
 
-app.use(express.json({ limit: "10mb" })); // Increased limit for large code submissions
-app.use("/api", runRoutes);
-app.use("/api/auth",authRoutes);
-app.use("/api/cpinfo",cpInfoRoutes);
-app.use("/api/profile",profileRoutes);
-app.use("/api/differential", differentialTestRoutes);
+app.use(express.json({ limit: "10mb" }));
 
-
-// for test 
-app.get('/',(req,res)=>
-{
-    // res.send('Hello World!');
-    res.json({ status: "OK", message: "Backend is running" });
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: "OK", 
+    message: "CP Helper Backend is running! 🚀",
+    timestamp: new Date().toISOString()
+  });
 });
 
+app.get('/health', (req, res) => {
+  res.json({ status: "OK" });
+});
+
+// Routes
+app.use("/api", runRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/cpinfo", cpInfoRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/differential", differentialTestRoutes);
 
 export default app;
