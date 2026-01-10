@@ -7,7 +7,7 @@ function Navbar() {
   const token = localStorage.getItem("token");
 
   const navLinks = [
-    { to: "/", label: "Home", icon: "🏠" },
+    { to: "/profile", label: "Home", icon: "🏠" },
     { to: "/coderunner", label: "Code Runner", icon: "💻" },
     { to: "/diff", label: "Diff Tester", icon: "🔥" },
     { to: "/contests", label: "Contests", icon: "🏆" },

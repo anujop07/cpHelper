@@ -27,7 +27,7 @@ function App() {
         </Route>
 
         {/* Catch-all for unknown routes */}
-        <Route path="*" element={<Home />} />
+        <Route path="*" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );
