@@ -11,6 +11,7 @@ function Navbar() {
     { to: "/coderunner", label: "Code Runner", icon: "💻" },
     { to: "/diff", label: "Diff Tester", icon: "🔥" },
     { to: "/contests", label: "Contests", icon: "🏆" },
+    { to: "/rag-search", label: "CP Guide", icon: "🔍" },
   ];
 
   const isActive = (path) => location.pathname === path;

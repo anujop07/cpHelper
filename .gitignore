@@ -2,3 +2,12 @@ node_modules
 .env
 backend/.env
 frontend/node_modules
+
+# RAG Intermediate Files (Don't commit these)
+preprocessing/output/extracted.json
+preprocessing/output/chunks.json
+preprocessing/output/embeddings.json
+
+# Keep these for production!
+!preprocessing/output/index-vectors.bin
+!preprocessing/output/index-metadata.json

@@ -4,8 +4,9 @@ import API from "../src/Api";
 function DiffTester() {
   const [correctCode, setCorrectCode] = useState("");
   const [testCode, setTestCode] = useState("");
-  const [generatorCode, setGeneratorCode] = useState("");
-  const [testCases, setTestCases] = useState(10);
+  const [testCases, setTestCases] = useState(100);
+  const [vMin, setVMin] = useState(1);
+  const [vMax, setVMax] = useState(1000);
   const [language, setLanguage] = useState("cpp");
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -17,29 +18,42 @@ function DiffTester() {
   ];
 
   function handleTest() {
-    if (!correctCode.trim() || !testCode.trim() || !generatorCode.trim()) {
-      setError("Please fill all code fields");
+    if (!correctCode.trim() || !testCode.trim()) {
+      setError("Please fill both code fields");
+      return;
+    }
+    if (vMin > vMax) {
+      setError("Min value cannot be greater than Max value");
       return;
     }
     setError("");
     setResults(null);
     setLoading(true);
 
-    API.post("/diff/test", { correctCode, testCode, generatorCode, testCases, language })
+    API.post("/differential/test", { 
+      oracleCode: correctCode, 
+      candidateCode: testCode, 
+      maxTestcases: testCases,
+      vMin: vMin,
+      vMax: vMax,
+      language
+    })
       .then(function(response) {
         setLoading(false);
         setResults(response.data);
       })
       .catch(function(err) {
         setLoading(false);
-        setError(err.response?.data?.message || "Test failed");
+        setError(err.response?.data?.error || err.response?.data?.message || "Test failed");
       });
   }
 
   function handleClear() {
     setCorrectCode("");
     setTestCode("");
-    setGeneratorCode("");
+    setTestCases(100);
+    setVMin(1);
+    setVMax(1000);
     setResults(null);
     setError("");
   }
@@ -76,8 +90,22 @@ function DiffTester() {
           
           <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md rounded-xl px-4 py-2 border border-white/10">
             <span className="text-gray-300 text-sm">Test Cases:</span>
-            <input type="number" value={testCases} onChange={(e) => setTestCases(Math.max(1, parseInt(e.target.value) || 1))} min="1" max="100"
+            <input type="number" value={testCases} onChange={(e) => setTestCases(Math.max(1, parseInt(e.target.value) || 1))} min="1" max="1000"
               className="w-20 px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-white text-center
+                       focus:outline-none focus:border-primary-500 transition-all" />
+          </div>
+
+          <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md rounded-xl px-4 py-2 border border-white/10">
+            <span className="text-gray-300 text-sm">Min Value:</span>
+            <input type="number" value={vMin} onChange={(e) => setVMin(parseInt(e.target.value) || 0)}
+              className="w-24 px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-white text-center
+                       focus:outline-none focus:border-primary-500 transition-all" />
+          </div>
+
+          <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md rounded-xl px-4 py-2 border border-white/10">
+            <span className="text-gray-300 text-sm">Max Value:</span>
+            <input type="number" value={vMax} onChange={(e) => setVMax(parseInt(e.target.value) || 100)}
+              className="w-24 px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-white text-center
                        focus:outline-none focus:border-primary-500 transition-all" />
           </div>
         </div>
@@ -88,12 +116,11 @@ function DiffTester() {
           </div>
         )}
 
-        {/* Code Editors */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Code Editors - Now 2 columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {[
             { title: "Correct Solution", value: correctCode, setter: setCorrectCode, color: "green", icon: "✅", delay: '200ms' },
             { title: "Test Solution", value: testCode, setter: setTestCode, color: "yellow", icon: "🧪", delay: '300ms' },
-            { title: "Input Generator", value: generatorCode, setter: setGeneratorCode, color: "blue", icon: "🎲", delay: '400ms' },
           ].map((editor) => (
             <div key={editor.title} className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden animate-fade-in-up" style={{ animationDelay: editor.delay }}>
               <div className={`px-4 py-3 bg-${editor.color}-500/10 border-b border-white/10`}>
@@ -110,14 +137,14 @@ function DiffTester() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-center gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
+        <div className="flex justify-center gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
           <button onClick={handleTest} disabled={loading}
             className="group relative px-8 py-3 bg-gradient-to-r from-accent-purple to-primary-500 
                      rounded-xl text-white font-semibold text-lg disabled:opacity-50
                      transform hover:scale-105 transition-all duration-300 overflow-hidden
                      shadow-[0_0_20px_rgba(167,139,250,0.3)]">
             <span className="relative z-10 flex items-center gap-2">
-              {loading ? <><svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> Testing...</> : <>🚀 Run Tests</>}
+              {loading ? <><svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> Finding...</> : <>🧪 Find Failing Testcase</>}
             </span>
             <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-12"></div>
           </button>
@@ -133,42 +160,68 @@ function DiffTester() {
         {/* Results */}
         {results && (
           <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 animate-scale-in">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               📊 Results
               <span className={`ml-auto px-3 py-1 rounded-full text-sm ${
-                results.allPassed ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                results.status === 'NO_FAILING_TESTCASE' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
               }`}>
-                {results.allPassed ? '✅ All Passed' : `❌ ${results.failedCount || 0} Failed`}
+                {results.status === 'NO_FAILING_TESTCASE' ? '✅ All Passed' : `❌ Found ${results.statistics?.totalFailing || 1} Failing`}
               </span>
             </h2>
 
-            <div className="space-y-4 max-h-96 overflow-y-auto">
-              {results.results?.map((result, index) => (
-                <div key={index} className={`p-4 rounded-xl border ${result.passed ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'} animate-fade-in`} style={{ animationDelay: `${index * 50}ms` }}>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-white font-medium">Test Case #{index + 1}</span>
-                    <span className={result.passed ? 'text-green-400' : 'text-red-400'}>{result.passed ? '✅ Passed' : '❌ Failed'}</span>
-                  </div>
-                  
-                  {!result.passed && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                      <div>
-                        <p className="text-gray-400 text-xs mb-1">Input</p>
-                        <pre className="p-2 bg-white/5 rounded-lg text-blue-400 text-xs font-mono overflow-x-auto">{result.input}</pre>
-                      </div>
-                      <div>
-                        <p className="text-gray-400 text-xs mb-1">Expected</p>
-                        <pre className="p-2 bg-white/5 rounded-lg text-green-400 text-xs font-mono overflow-x-auto">{result.expected}</pre>
-                      </div>
-                      <div>
-                        <p className="text-gray-400 text-xs mb-1">Got</p>
-                        <pre className="p-2 bg-white/5 rounded-lg text-red-400 text-xs font-mono overflow-x-auto">{result.actual}</pre>
-                      </div>
-                    </div>
-                  )}
+            <p className="text-gray-300 mb-4">{results.message}</p>
+
+            {/* Statistics */}
+            {results.statistics && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-white/5 rounded-lg p-3 text-center">
+                  <p className="text-gray-400 text-xs">Tested</p>
+                  <p className="text-white font-bold text-lg">{results.statistics.totalTested}</p>
                 </div>
-              ))}
-            </div>
+                <div className="bg-white/5 rounded-lg p-3 text-center">
+                  <p className="text-gray-400 text-xs">Failed</p>
+                  <p className="text-red-400 font-bold text-lg">{results.statistics.totalFailing}</p>
+                </div>
+                <div className="bg-white/5 rounded-lg p-3 text-center">
+                  <p className="text-gray-400 text-xs">Time</p>
+                  <p className="text-white font-bold text-lg">{(results.statistics.totalTimeMs / 1000).toFixed(2)}s</p>
+                </div>
+                <div className="bg-white/5 rounded-lg p-3 text-center">
+                  <p className="text-gray-400 text-xs">Speed</p>
+                  <p className="text-white font-bold text-lg">{results.statistics.testcasesPerSecond}/s</p>
+                </div>
+              </div>
+            )}
+
+            {/* Failing Testcase Details */}
+            {results.smallestFailingTestcase && (
+              <div className="p-4 rounded-xl border bg-red-500/5 border-red-500/20">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-white font-medium">🐛 Smallest Failing Testcase (n={results.smallestFailingTestcase.n})</span>
+                  <span className="text-red-400">❌ {results.smallestFailingTestcase.failureReason}</span>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                  <div>
+                    <p className="text-gray-400 text-xs mb-1">Input</p>
+                    <pre className="p-2 bg-white/5 rounded-lg text-blue-400 text-xs font-mono overflow-x-auto max-h-32">{results.smallestFailingTestcase.input}</pre>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-xs mb-1">Expected (Correct)</p>
+                    <pre className="p-2 bg-white/5 rounded-lg text-green-400 text-xs font-mono overflow-x-auto max-h-32">{results.smallestFailingTestcase.oracleOutput || results.smallestFailingTestcase.oracleStatus}</pre>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-xs mb-1">Got (Test)</p>
+                    <pre className="p-2 bg-white/5 rounded-lg text-red-400 text-xs font-mono overflow-x-auto max-h-32">{results.smallestFailingTestcase.candidateOutput || results.smallestFailingTestcase.candidateStatus}</pre>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Note when no failing found */}
+            {results.note && (
+              <p className="text-yellow-400/70 text-sm mt-4 italic">⚠️ {results.note}</p>
+            )}
           </div>
         )}
       </div>
@@ -177,3 +230,4 @@ function DiffTester() {
 }
 
 export default DiffTester;
+

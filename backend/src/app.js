@@ -5,6 +5,7 @@ import cpInfoRoutes from './routes/cpInfo.routes.js';
 import profileRoutes from './routes/profile.route.js';
 import runRoutes from "./routes/run.routes.js";
 import differentialTestRoutes from "./routes/differentialTest.routes.js";
+import ragRoutes from "./routes/rag.routes.js";
 
 const app = express();
 
@@ -51,5 +52,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/cpinfo", cpInfoRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/differential", differentialTestRoutes);
+app.use("/api/rag", ragRoutes);
 
 export default app;
