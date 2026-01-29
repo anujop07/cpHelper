@@ -11,6 +11,13 @@ export const protect = async (req, res, next) => {
     ) {
       token = req.headers.authorization.split(" ")[1];
     }
+    
+    // Debug Log
+    console.log('Auth Check:', { 
+      path: req.path,
+      hasToken: !!token, 
+      authHeader: req.headers.authorization 
+    });
 
     if (!token) {
       return res.status(401).json({
@@ -20,10 +27,10 @@ export const protect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     req.user = await User.findById(decoded.id).select("-password");
 
     if (!req.user) {
+      console.log('User not found for ID:', decoded.id);
       return res.status(401).json({
         success: false,
         message: "User not found"
@@ -32,6 +39,7 @@ export const protect = async (req, res, next) => {
 
     next();
   } catch (error) {
+    console.error('Auth Error:', error.message);
     res.status(401).json({
       success: false,
       message: "Not authorized, token invalid"

@@ -23,7 +23,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/profile" element={<Profile />} />
           <Route path="/coderunner" element={<CodeRunner />} />
-          <Route path="/diff" element={<ComingSoon />} />
+          <Route path="/diff" element={<DiffTester />} />
           <Route path="/contests" element={<ContestMania />} />
           <Route path="/rag-search" element={<RAGSearch />} />
         </Route>

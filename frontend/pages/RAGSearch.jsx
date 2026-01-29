@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'https://cphelper-7wab.onrender.com';
 
 function RAGSearch() {
   const [question, setQuestion] = useState('');
@@ -18,6 +18,8 @@ function RAGSearch() {
 
     try {
       const token = localStorage.getItem('token');
+      console.log('Sending token:', token ? 'Token exists' : 'No token'); // Debug
+      
       const response = await fetch(`${API_URL}/api/rag/ask`, {
         method: 'POST',
         headers: {
@@ -26,6 +28,8 @@ function RAGSearch() {
         },
         body: JSON.stringify({ question: question.trim(), topK: 5 })
       });
+      
+      console.log('Response status:', response.status); // Debug
 
       if (!response.ok) {
         if (response.status === 401) {

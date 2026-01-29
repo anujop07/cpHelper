@@ -2,22 +2,22 @@
 
 ## 🚀 Quick Deploy Commands
 
-### Backend (Render.com)
-```bash
-# 1. Push to GitHub
-git add . && git commit -m "RAG system" && git push
+### Backend (Render / Railway)
+1. **Push to GitHub**
+   ```bash
+   git add . && git commit -m "Deploy RAG" && git push
+   ```
+2. **Add Environment Variables** (Critical!)
+   Go to your dashboard (Railway/Render) and add these:
+   
+   | Variable | Value | Note |
+   |----------|-------|------|
+   | `MONGO_URI` | `mongodb+srv://...` | Connection String |
+   | `JWT_SECRET` | `supersecretkey123` | Must match local! |
+   | `JWT_EXPIRE` | `7d` | Token expiry |
+   | `GROQ_API_KEY` | `gsk_...` | For AI Search |
 
-# 2. On render.com:
-#    - Create Web Service
-#    - Connect GitHub repo
-#    - Build: npm install
-#    - Start: node src/server.js
-
-# 3. Add Environment Variables:
-MONGO_URI=your_mongodb_atlas_uri
-JWT_SECRET=your_secret
-GROQ_API_KEY=your_groq_key
-```
+   > **Railway Note:** If using Railway's MongoDB plugin, it might provide `MONGO_URL`. You MUST create a variable named `MONGO_URI` with that value.
 
 ### Frontend (Vercel)
 ```bash
