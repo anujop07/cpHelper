@@ -34,11 +34,25 @@ export default {
           900: '#0f172a',
           950: '#020617',
         },
+        // Neutral grays (less blue tint)
+        neutral: {
+          900: '#000000',  // Pure black
+          850: '#0a0a0a',  // Vercel card bg
+          800: '#111111',  // Elevated
+          750: '#171717',  // Card background
+          700: '#1f1f1f',  // Borders
+          600: '#2a2a2a',  // Muted borders
+          500: '#3a3a3a',  // Disabled
+          400: '#666666',  // Muted text
+          300: '#888888',  // Secondary text
+          200: '#eeeeee',  // Primary text
+        },
         surface: {
-          dark: '#1a1a2e',
-          darker: '#16213e',
-          card: '#1e1e1e',
-          editor: '#263238',
+          dark: '#000000',
+          darker: '#000000',
+          card: '#0a0a0a',
+          elevated: '#111111',
+          border: 'rgba(255, 255, 255, 0.08)',
         },
         success: {
           light: '#e8f5e9',

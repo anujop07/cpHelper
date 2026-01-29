@@ -1,6 +1,10 @@
+import { useTheme } from "../src/ThemeContext";
+
 function ComingSoon() {
+  const { isDark } = useTheme();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface-dark via-surface-darker to-slate-900 flex items-center justify-center p-4 overflow-hidden">
+    <div className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-300 ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-primary-500/20 rounded-full blur-3xl animate-pulse-slow"></div>

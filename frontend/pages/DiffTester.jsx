@@ -1,5 +1,6 @@
 import { useState } from "react";
 import API from "../src/Api";
+import { useTheme } from "../src/ThemeContext";
 
 function DiffTester() {
   const [correctCode, setCorrectCode] = useState("");
@@ -58,8 +59,10 @@ function DiffTester() {
     setError("");
   }
 
+  const { isDark } = useTheme();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface-dark via-surface-darker to-slate-900 py-8 px-4">
+    <div className={`min-h-screen py-8 px-4 transition-colors duration-300 ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-accent-purple/10 rounded-full blur-3xl animate-pulse-slow"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
@@ -67,46 +70,43 @@ function DiffTester() {
 
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="text-center mb-8 animate-fade-in-up">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+          <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
             🔥 <span className="bg-gradient-to-r from-accent-purple to-primary-500 bg-clip-text text-transparent">Differential Tester</span>
           </h1>
-          <p className="text-gray-400">Find bugs by comparing solutions with random test cases</p>
+          <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Find bugs by comparing solutions with random test cases</p>
         </div>
 
         {/* Controls */}
         <div className="flex flex-wrap justify-center items-center gap-4 mb-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-          <div className="inline-flex bg-white/5 backdrop-blur-md rounded-xl p-1 border border-white/10">
+          <div className={`inline-flex backdrop-blur-md rounded-xl p-1 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200'}`}>
             {languages.map((lang) => (
               <button key={lang.value} onClick={() => setLanguage(lang.value)}
                 className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
                   language === lang.value 
                     ? 'bg-gradient-to-r from-accent-purple to-primary-500 text-white shadow-lg' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    : isDark ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}>
                 {lang.icon} {lang.label}
               </button>
             ))}
           </div>
           
-          <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md rounded-xl px-4 py-2 border border-white/10">
-            <span className="text-gray-300 text-sm">Test Cases:</span>
+          <div className={`flex items-center gap-3 backdrop-blur-md rounded-xl px-4 py-2 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200'}`}>
+            <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Test Cases:</span>
             <input type="number" value={testCases} onChange={(e) => setTestCases(Math.max(1, parseInt(e.target.value) || 1))} min="1" max="1000"
-              className="w-20 px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-white text-center
-                       focus:outline-none focus:border-primary-500 transition-all" />
+              className={`w-20 px-3 py-1 border rounded-lg text-center focus:outline-none focus:border-primary-500 transition-all ${isDark ? 'bg-white/5 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'}`} />
           </div>
 
-          <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md rounded-xl px-4 py-2 border border-white/10">
-            <span className="text-gray-300 text-sm">Min Value:</span>
+          <div className={`flex items-center gap-3 backdrop-blur-md rounded-xl px-4 py-2 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200'}`}>
+            <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Min Value:</span>
             <input type="number" value={vMin} onChange={(e) => setVMin(parseInt(e.target.value) || 0)}
-              className="w-24 px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-white text-center
-                       focus:outline-none focus:border-primary-500 transition-all" />
+              className={`w-24 px-3 py-1 border rounded-lg text-center focus:outline-none focus:border-primary-500 transition-all ${isDark ? 'bg-white/5 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'}`} />
           </div>
 
-          <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md rounded-xl px-4 py-2 border border-white/10">
-            <span className="text-gray-300 text-sm">Max Value:</span>
+          <div className={`flex items-center gap-3 backdrop-blur-md rounded-xl px-4 py-2 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200'}`}>
+            <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Max Value:</span>
             <input type="number" value={vMax} onChange={(e) => setVMax(parseInt(e.target.value) || 100)}
-              className="w-24 px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-white text-center
-                       focus:outline-none focus:border-primary-500 transition-all" />
+              className={`w-24 px-3 py-1 border rounded-lg text-center focus:outline-none focus:border-primary-500 transition-all ${isDark ? 'bg-white/5 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'}`} />
           </div>
         </div>
 
@@ -122,16 +122,15 @@ function DiffTester() {
             { title: "Correct Solution", value: correctCode, setter: setCorrectCode, color: "green", icon: "✅", delay: '200ms' },
             { title: "Test Solution", value: testCode, setter: setTestCode, color: "yellow", icon: "🧪", delay: '300ms' },
           ].map((editor) => (
-            <div key={editor.title} className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden animate-fade-in-up" style={{ animationDelay: editor.delay }}>
-              <div className={`px-4 py-3 bg-${editor.color}-500/10 border-b border-white/10`}>
-                <span className="text-white font-medium flex items-center gap-2">
+            <div key={editor.title} className={`backdrop-blur-md rounded-2xl border overflow-hidden animate-fade-in-up ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200'}`} style={{ animationDelay: editor.delay }}>
+              <div className={`px-4 py-3 border-b ${isDark ? `bg-${editor.color}-500/10 border-white/10` : 'bg-gray-50 border-gray-200'}`}>
+                <span className={`font-medium flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {editor.icon} {editor.title}
                 </span>
               </div>
               <textarea value={editor.value} onChange={(e) => editor.setter(e.target.value)} disabled={loading}
                 placeholder={`// ${editor.title} code...`}
-                className="w-full h-64 p-4 bg-transparent text-white font-mono text-sm resize-none outline-none
-                         placeholder-gray-500 disabled:opacity-50" />
+                className={`w-full h-64 p-4 bg-transparent font-mono text-sm resize-none outline-none disabled:opacity-50 ${isDark ? 'text-white placeholder-gray-500' : 'text-gray-900 placeholder-gray-400'}`} />
             </div>
           ))}
         </div>

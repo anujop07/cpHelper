@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTheme } from "../src/ThemeContext";
 
 function ContestMania() {
   const [contests, setContests] = useState([]);
@@ -110,8 +111,10 @@ function ContestMania() {
     return "from-primary-500/20 to-primary-600/20 border-primary-500/30";
   };
 
+  const { isDark } = useTheme();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface-dark via-surface-darker to-slate-900 py-8 px-4">
+    <div className={`min-h-screen py-8 px-4 transition-colors duration-300 ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-yellow-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
@@ -122,17 +125,17 @@ function ContestMania() {
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in-up">
           <div className="inline-block mb-4 text-5xl animate-bounce-slow">🏆</div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+          <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
             <span className="bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
               Contest Mania
             </span>
           </h1>
-          <p className="text-gray-400">Track all upcoming competitive programming contests</p>
+          <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Track all upcoming competitive programming contests</p>
         </div>
 
         {/* Platform Filter */}
         <div className="flex justify-center mb-8 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-          <div className="inline-flex flex-wrap justify-center bg-white/5 backdrop-blur-md rounded-xl p-1 border border-white/10 gap-1">
+          <div className={`inline-flex flex-wrap justify-center backdrop-blur-md rounded-xl p-1 border gap-1 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200'}`}>
             {platforms.map((platform) => (
               <button
                 key={platform.value}
@@ -140,7 +143,7 @@ function ContestMania() {
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
                   filter === platform.value
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    : isDark ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
                 {platform.icon} {platform.label}
@@ -166,7 +169,7 @@ function ContestMania() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl animate-fade-in max-w-2xl mx-auto">
+          <div className={`mb-6 p-4 border rounded-xl animate-fade-in max-w-2xl mx-auto ${isDark ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'}`}>
             <p className="text-red-400 text-sm flex items-center justify-center gap-2">
               <span>❌</span> {error}
             </p>
@@ -177,10 +180,10 @@ function ContestMania() {
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 animate-pulse">
-                <div className="h-6 bg-white/10 rounded w-3/4 mb-4"></div>
-                <div className="h-4 bg-white/10 rounded w-1/2 mb-3"></div>
-                <div className="h-4 bg-white/10 rounded w-2/3"></div>
+              <div key={i} className={`backdrop-blur-md rounded-2xl p-6 border animate-pulse ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200'}`}>
+                <div className={`h-6 rounded w-3/4 mb-4 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`}></div>
+                <div className={`h-4 rounded w-1/2 mb-3 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`}></div>
+                <div className={`h-4 rounded w-2/3 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`}></div>
               </div>
             ))}
           </div>
@@ -211,7 +214,7 @@ function ContestMania() {
                 </div>
 
                 {/* Contest Name */}
-                <h3 className="text-lg font-bold text-white mb-3 group-hover:text-yellow-400 transition-colors line-clamp-2">
+                <h3 className={`text-lg font-bold mb-3 group-hover:text-yellow-400 transition-colors line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {contest.event}
                 </h3>
 
@@ -251,16 +254,16 @@ function ContestMania() {
         {!loading && filteredContests.length === 0 && !error && (
           <div className="text-center py-16 animate-fade-in">
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-bold text-white mb-2">No Contests Found</h3>
-            <p className="text-gray-400">Try changing the filter or check back later</p>
+            <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>No Contests Found</h3>
+            <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Try changing the filter or check back later</p>
           </div>
         )}
 
         {/* Stats Footer */}
         {!loading && filteredContests.length > 0 && (
           <div className="mt-12 text-center animate-fade-in-up" style={{ animationDelay: '500ms' }}>
-            <p className="text-gray-500">
-              Showing <span className="text-white font-semibold">{filteredContests.length}</span> upcoming contests
+            <p className={isDark ? 'text-gray-500' : 'text-gray-600'}>
+              Showing <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{filteredContests.length}</span> upcoming contests
             </p>
           </div>
         )}

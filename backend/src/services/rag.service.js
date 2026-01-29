@@ -187,7 +187,7 @@ function getGroqClient() {
  * @param {number} topK - Number of context chunks to retrieve
  * @returns {Object} - Answer with sources
  */
-export async function ask(question, topK = 5) {
+export async function ask(question, topK = 7) {
   // Step 1: Retrieve relevant chunks
   const chunks = await search(question, topK);
   
@@ -196,23 +196,63 @@ export async function ask(question, topK = 5) {
     .map((chunk, i) => `[Source ${i + 1}: ${chunk.source}, Page ${chunk.page}]\n${chunk.text}`)
     .join('\n\n---\n\n');
   
-  // Step 3: Create prompt
-  const prompt = `You are a competitive programming expert. Answer the following question using ONLY the provided context from CP books. If the context doesn't contain enough information, say so.
+  // Step 3: Create enhanced prompt for detailed, code-rich answers
+  const prompt = `You are an expert competitive programming tutor. Your goal is to provide **comprehensive, practical answers** that help programmers understand and implement solutions.
 
-CONTEXT:
+CONTEXT FROM CP BOOKS:
 ${context}
 
 QUESTION: ${question}
 
-Provide a clear, concise answer with code examples if relevant. Cite the source numbers when referencing specific information.`;
+INSTRUCTIONS - Follow these strictly:
+
+1. **START WITH A CLEAR EXPLANATION**: Briefly explain the concept in simple terms (2-3 sentences max).
+
+2. **PROVIDE WORKING CODE**: Always include complete, ready-to-run code examples in C++ (preferred) or Python. The code should be:
+   - Well-commented with explanations of key steps
+   - Properly formatted and indented
+   - Include the main function with sample usage
+
+3. **EXPLAIN THE APPROACH**: After the code, explain:
+   - How the algorithm works step-by-step
+   - Time complexity: O(?) and why
+   - Space complexity: O(?) and why
+
+4. **PRACTICAL TIPS**: Include any:
+   - Common mistakes to avoid
+   - Edge cases to handle
+   - Optimization tricks for competitive programming
+
+5. **CITE SOURCES**: Reference [Source X] when using information from the context.
+
+FORMAT YOUR RESPONSE LIKE THIS:
+## Concept Overview
+[Brief explanation]
+
+## Implementation
+\`\`\`cpp
+// Complete code here
+\`\`\`
+
+## How It Works
+[Step-by-step explanation]
+
+## Complexity Analysis
+- Time: O(?)
+- Space: O(?)
+
+## Pro Tips
+[Practical advice]
+
+Now answer the question with detailed code and explanations:`;
 
   // Step 4: Get answer from Groq (ultra-fast!)
   const client = getGroqClient();
   const completion = await client.chat.completions.create({
     model: 'llama-3.3-70b-versatile',
     messages: [{ role: 'user', content: prompt }],
-    temperature: 0.3,
-    max_tokens: 1024
+    temperature: 0.2,  // Lower for more consistent, focused answers
+    max_tokens: 2048   // Increased for detailed code + explanations
   });
   
   const answer = completion.choices[0]?.message?.content || 'No answer generated';
