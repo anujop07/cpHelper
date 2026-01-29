@@ -196,55 +196,43 @@ export async function ask(question, topK = 7) {
     .map((chunk, i) => `[Source ${i + 1}: ${chunk.source}, Page ${chunk.page}]\n${chunk.text}`)
     .join('\n\n---\n\n');
   
-  // Step 3: Create enhanced prompt for detailed, code-rich answers
-  const prompt = `You are an expert competitive programming tutor. Your goal is to provide **comprehensive, practical answers** that help programmers understand and implement solutions.
+  // Step 3: Create CODE-FIRST prompt - minimal explanation, maximum code
+  const prompt = `You are a competitive programming code assistant. Give DIRECT, CODE-HEAVY answers.
 
-CONTEXT FROM CP BOOKS:
+CONTEXT:
 ${context}
 
 QUESTION: ${question}
 
-INSTRUCTIONS - Follow these strictly:
+RULES - FOLLOW STRICTLY:
+1. Give a BRIEF explanation (2-5 lines MAX) - what the topic is and when to use it
+2. Then IMMEDIATELY give COMPLETE, WORKING C++ CODE with:
+   - All necessary includes
+   - Template code ready to copy-paste
+   - Comments explaining key parts
+   - Example usage in main()
+3. After code: ONE LINE for time complexity, ONE LINE for space complexity
+4. NO long theory paragraphs - users want CODE, not essays
 
-1. **START WITH A CLEAR EXPLANATION**: Briefly explain the concept in simple terms (2-3 sentences max).
+FORMAT:
+**What it is:** [1-2 sentences]
+**When to use:** [1-2 sentences]
 
-2. **PROVIDE WORKING CODE**: Always include complete, ready-to-run code examples in C++ (preferred) or Python. The code should be:
-   - Well-commented with explanations of key steps
-   - Properly formatted and indented
-   - Include the main function with sample usage
-
-3. **EXPLAIN THE APPROACH**: After the code, explain:
-   - How the algorithm works step-by-step
-   - Time complexity: O(?) and why
-   - Space complexity: O(?) and why
-
-4. **PRACTICAL TIPS**: Include any:
-   - Common mistakes to avoid
-   - Edge cases to handle
-   - Optimization tricks for competitive programming
-
-5. **CITE SOURCES**: Reference [Source X] when using information from the context.
-
-FORMAT YOUR RESPONSE LIKE THIS:
-## Concept Overview
-[Brief explanation]
-
-## Implementation
 \`\`\`cpp
-// Complete code here
+#include <bits/stdc++.h>
+using namespace std;
+
+// Complete working code here
+// With comments on key logic
+
+int main() {
+    // Example usage
+}
 \`\`\`
 
-## How It Works
-[Step-by-step explanation]
+**Complexity:** Time O(?), Space O(?)
 
-## Complexity Analysis
-- Time: O(?)
-- Space: O(?)
-
-## Pro Tips
-[Practical advice]
-
-Now answer the question with detailed code and explanations:`;
+Now give the code-focused answer:`;
 
   // Step 4: Get answer from Groq (ultra-fast!)
   const client = getGroqClient();
